@@ -1,11 +1,13 @@
+[English](./README.md) | [简体中文](./README-zh.md)
+
 # lucide-icons-compose-skill
 
-`lucide-icons-compose-skill` 是 `lucide-icons-compose-skill` 的实现仓库，用于完成两件事：
+`lucide-icons-compose-skill` is the implementation repository for `lucide-icons-compose-skill`. It is responsible for exactly two things:
 
-- 搜索 Lucide 图标并获取准确的 SVG
-- 调用 Valkyrie CLI 生成 Jetpack Compose `ImageVector`
+- Searching Lucide icons and obtaining the correct SVG
+- Calling Valkyrie CLI to generate Jetpack Compose `ImageVector`
 
-## 目录
+## Structure
 
 ```text
 .
@@ -27,50 +29,50 @@
     └── valkyrie-cli/
 ```
 
-关键文件：
+Key files:
 
-- [SKILL.md](./SKILL.md)：skill 入口说明
-- [references/backend-contract.md](./references/backend-contract.md)：backend 契约
-- [engine/scripts/run_skill_backend.py](./engine/scripts/run_skill_backend.py)：backend 自举与执行入口
-- [engine/cli.py](./engine/cli.py)：backend CLI 主实现
-- [engine/lucide_index.py](./engine/lucide_index.py)：Lucide 索引、搜索与 SVG 获取
-- [engine/data/lucide-index.json](./engine/data/lucide-index.json)：本地 Lucide 元数据索引
+- [SKILL.md](./SKILL.md): skill entry documentation
+- [references/backend-contract.md](./references/backend-contract.md): backend contract
+- [engine/scripts/run_skill_backend.py](./engine/scripts/run_skill_backend.py): backend bootstrap and execution entry
+- [engine/cli.py](./engine/cli.py): main backend CLI implementation
+- [engine/lucide_index.py](./engine/lucide_index.py): Lucide index, search, and SVG fetching
+- [engine/data/lucide-index.json](./engine/data/lucide-index.json): local Lucide metadata index
 
-## 使用方式
+## Usage
 
-通过 skill backend 入口：
+Via the skill backend entrypoint:
 
 ```bash
 python engine/scripts/run_skill_backend.py search arrow left
 python engine/scripts/run_skill_backend.py generate arrow-left --config /path/to/config.json
 ```
 
-这个 helper 会禁止把自己的 `__pycache__` 写回仓库目录；实际 backend 执行产生的字节码和临时文件会落到当前项目 `.cache/` 子树下。
+This helper prevents its own `__pycache__` from being written back into the repository. Bytecode and temporary files produced by the actual backend run are written under the current project's `.cache/` subtree.
 
-直接调试 backend：
+Debug the backend directly:
 
 ```bash
 python -X pycache_prefix=.cache/pycache -m engine.cli search arrow left
 python -X pycache_prefix=.cache/pycache -m engine.cli generate arrow-left --config /path/to/config.json
 ```
 
-## 配置
+## Configuration
 
-生成命令必须由调用方显式提供配置文件，或者通过环境变量 `LUCIDE_ICONS_COMPOSE_CONFIG` 指定。
+The `generate` command requires the caller to provide a config file explicitly, or to point to one with the `LUCIDE_ICONS_COMPOSE_CONFIG` environment variable.
 
-推荐在调用方项目根目录放置：
+Recommended filename at the caller project root:
 
 - `lucide-icons-compose.config.json`
 
-配置文件字段：
+Config fields:
 
-- `target_dir`：Kotlin 源码输出根目录；支持绝对路径，或相对于配置文件所在目录的路径
-- `package`：输出包名
-- `object_class_extension`：可选的承载对象文件名，例如 `Icons.kt`
+- `target_dir`: Kotlin source output root; supports either an absolute path or a path relative to the config file location
+- `package`: output package name
+- `object_class_extension`: optional carrier object filename, for example `Icons.kt`
 
-当 `object_class_extension` 非空时，工作流会在目标包目录下校验或创建最小 `object` 承载文件，然后生成扩展属性形式的 `ImageVector`。
+When `object_class_extension` is non-empty, the workflow validates or creates a minimal carrier `object` file in the target package directory, then generates the `ImageVector` as an extension property.
 
-最小配置示例：
+Minimal config example:
 
 ```json
 {
@@ -80,7 +82,7 @@ python -X pycache_prefix=.cache/pycache -m engine.cli generate arrow-left --conf
 }
 ```
 
-如果配置文件就在项目根目录，也可以直接写相对路径：
+If the config file is already in the project root, a relative path also works:
 
 ```json
 {
@@ -90,24 +92,24 @@ python -X pycache_prefix=.cache/pycache -m engine.cli generate arrow-left --conf
 }
 ```
 
-## 项目侧 AGENTS.md
+## Project-side AGENTS.md
 
-如果通过 Codex 在业务项目里调用这个 skill，推荐在项目根目录放一个最小 `AGENTS.md`，明确告诉调用方去哪里读配置、生成结果应该满足什么约束。
+If this skill is used through Codex inside an application repository, it is recommended to place a minimal `AGENTS.md` at the project root so the caller knows where to read config from and what constraints the generated output must satisfy.
 
-示例：
+Example:
 
 ```md
 # Project Instructions
 
-- 生成 Lucide Compose 图标时使用 `$lucide-icons-compose-skill`
-- 生成前先读取项目根 `lucide-icons-compose.config.json`
-- 输出目录必须是 `target_dir + package路径`
-- 如果 `object_class_extension` 非空，先确保目标包目录下存在对应 Kotlin 承载文件
-- 如果 `object_class_extension = Icons.kt`，生成结果必须是 `val Icons.IconName: ImageVector`
-- 若搜索结果不唯一，不要静默猜测，必须显式选择候选
+- Use `$lucide-icons-compose-skill` when generating Lucide Compose icons
+- Read `lucide-icons-compose.config.json` from the project root before generation
+- The output directory must be `target_dir + package path`
+- If `object_class_extension` is non-empty, first ensure the corresponding Kotlin carrier file exists in the target package directory
+- If `object_class_extension = Icons.kt`, the generated result must be `val Icons.IconName: ImageVector`
+- If search results are not unique, do not guess silently; an explicit selection is required
 ```
 
-对应的最小 Kotlin 承载文件可以是：
+The minimal Kotlin carrier file can be:
 
 ```kt
 package io.github.lucide.icons
@@ -115,7 +117,7 @@ package io.github.lucide.icons
 object Icons
 ```
 
-生成结果应类似：
+The generated result should look like:
 
 ```kt
 package io.github.lucide.icons
@@ -126,39 +128,39 @@ val Icons.ArrowLeft: ImageVector
     get() = TODO()
 ```
 
-## Lucide 索引
+## Lucide Index
 
-本仓库使用 [engine/data/lucide-index.json](./engine/data/lucide-index.json) 提供本地 Lucide 搜索能力。
+This repository uses [engine/data/lucide-index.json](./engine/data/lucide-index.json) to provide local Lucide search capability.
 
-刷新索引：
+Refresh the index:
 
 ```bash
 python -m engine.update_lucide_index
 ```
 
-## 缓存
+## Cache
 
-通过 skill 使用时，所有缓存、临时文件和 Python 字节码都写入调用方项目根目录 `.cache/` 子树下，包括：
+When used through the skill, all caches, temporary files, and Python bytecode are written into the caller project's `.cache/` subtree, including:
 
 - Python `pycache`
-- 临时 SVG 文件
-- Lucide SVG 缓存
-- 其他中间产物
+- Temporary SVG files
+- Lucide SVG cache
+- Other intermediate artifacts
 
-如果 backend 被种到调用方项目的 `.cache/lics/backend`，那么 backend 自己的临时目录会继续位于该缓存副本内部的 `.cache/`，例如 `.cache/lics/backend/.cache/pycache`。
-当多个进程同时尝试播种或刷新同一个 backend 缓存时，helper 会使用同级的 `backend.lock` 串行化这一步。
+If the backend is seeded into the caller project's `.cache/lics/backend`, the backend's own temporary directory still stays inside that cached copy's `.cache/`, for example `.cache/lics/backend/.cache/pycache`.
+When multiple processes try to seed or refresh the same backend cache at the same time, the helper serializes that step with a sibling `backend.lock`.
 
 ## Runtime Dependencies
 
 - Python 3.10+
 - Java 21+
-- `engine/valkyrie-cli/` 官方 release 运行时
+- Official `engine/valkyrie-cli/` release runtime
 
-说明：
+Notes:
 
-- `engine/valkyrie-cli/` 不随 Git 远端自动提供
-- 如果使用远端克隆或项目缓存中的 backend 执行 `generate`，需要先在该 backend 根目录下准备好 `engine/valkyrie-cli/`
-- 也可以直接用带有该运行时的本地 backend 通过 `--backend-path` 重新播种缓存
+- `engine/valkyrie-cli/` is not automatically provided by the Git remote
+- If `generate` is executed from a remote clone or a backend cached inside another project, make sure `engine/valkyrie-cli/` is already present in that backend root
+- Alternatively, reseed the cache with `--backend-path` using a local backend that already includes the runtime
 
 ## Upstream References
 

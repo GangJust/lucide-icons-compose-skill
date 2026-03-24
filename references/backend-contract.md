@@ -43,7 +43,7 @@ When generation is invoked through the skill helper, config must come from the c
 
 Required fields:
 
-- `target_dir`: absolute Kotlin source root
+- `target_dir`: Kotlin source root, either absolute or relative to the config file directory
 - `package`: output package name
 - `object_class_extension`: optional carrier file name such as `Icons.kt`
 

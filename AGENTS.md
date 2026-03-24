@@ -35,7 +35,7 @@
 
 ## 生成约束
 
-- `target_dir` 必须是绝对路径。
+- `target_dir` 支持绝对路径，或相对于配置文件所在目录的路径。
 - `package` 不能为空。
 - `object_class_extension` 非空时，工作流必须先确保承载 `object` 文件存在。
 - 如果承载文件已存在，其 `package` 与 `object` 声明都必须匹配配置。

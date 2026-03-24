@@ -129,9 +129,19 @@ def resolve_config_path(config_arg: str | None) -> Path:
     return config_path
 
 
+def resolve_target_dir(target_dir_raw: str, config_path: Path) -> Path:
+    target_dir = Path(target_dir_raw).expanduser()
+    if target_dir.is_absolute():
+        return target_dir.resolve()
+    return (config_path.parent / target_dir).resolve()
+
+
 def load_config(config_path: Path | None = None) -> GenerationConfig:
     if config_path is None:
         raise EngineError("缺少配置文件路径。")
+    config_path = config_path.expanduser()
+    if not config_path.is_absolute():
+        config_path = (Path.cwd() / config_path).resolve()
     try:
         raw = json.loads(config_path.read_text(encoding="utf-8"))
     except FileNotFoundError as exc:
@@ -145,9 +155,7 @@ def load_config(config_path: Path | None = None) -> GenerationConfig:
 
     if not target_dir_raw:
         raise EngineError("配置中的 target_dir 不能为空")
-    target_dir = Path(target_dir_raw)
-    if not target_dir.is_absolute():
-        raise EngineError(f"target_dir 必须是绝对路径: {target_dir}")
+    target_dir = resolve_target_dir(target_dir_raw, config_path)
 
     if not package_name:
         raise EngineError("配置中的 package 不能为空")

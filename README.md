@@ -64,7 +64,7 @@ python -X pycache_prefix=.cache/pycache -m engine.cli generate arrow-left --conf
 
 配置文件字段：
 
-- `target_dir`：Kotlin 源码输出根目录，必须是绝对路径
+- `target_dir`：Kotlin 源码输出根目录；支持绝对路径，或相对于配置文件所在目录的路径
 - `package`：输出包名
 - `object_class_extension`：可选的承载对象文件名，例如 `Icons.kt`
 
@@ -80,11 +80,11 @@ python -X pycache_prefix=.cache/pycache -m engine.cli generate arrow-left --conf
 }
 ```
 
-对应的项目侧 `lucide-icons-compose.config.json` 可以直接写成：
+如果配置文件就在项目根目录，也可以直接写相对路径：
 
 ```json
 {
-  "target_dir": "D:\\Code\\Demo\\src\\commonMain\\kotlin",
+  "target_dir": "src\\commonMain\\kotlin",
   "package": "io.github.lucide.icons",
   "object_class_extension": "Icons.kt"
 }

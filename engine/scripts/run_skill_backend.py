@@ -95,7 +95,7 @@ def is_valid_generation_config(path: Path) -> bool:
     target_dir = str(raw.get("target_dir", "")).strip()
     package_name = str(raw.get("package", "")).strip()
     object_class_extension = raw.get("object_class_extension", "")
-    if not target_dir or not Path(target_dir).is_absolute():
+    if not target_dir:
         return False
     if not package_name:
         return False
